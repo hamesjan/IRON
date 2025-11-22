@@ -1,0 +1,41 @@
+Notes
+
+Benchmark Attention mechanism on multi head attention and GQA
+
+To build
+
+cd /notebooks/IRON
+cmake --build build --target (mha)
+
+
+To test
+
+cd /notebooks/IRON
+./scripts/run_tests.py --select mha build
+
+
+cmake --build build --target help | grep mha
+cmake --build build --target mha_xclbin -j
+cmake --build build --target mha_run -j
+
+
+
+/notebooks/IRON/build/example/mha/mha \
+  -x /notebooks/IRON/build/aie/mha.xclbin \
+  -i /notebooks/IRON/build/aie/mha.bin \
+  -k mha \
+  --heads 1 \
+  --S_q 2048 \
+  --S_kv 2048 \
+  -d 64 \
+  -v 2 \
+  --warmup 5 \
+  --iters 1 \
+  --verbosity 0 \
+  --ref /notebooks/IRON/build/example/mha/golden_mha/golden_reference.bin \
+  --trace_sz 16384 \
+  --trace_file trace.txt
+
+
+
+ ../../../../mlir-aie/python/utils/parse_trace.py --input trace.txt --mlir ../../../example/mha/build/my_mha.mlir --output trace_4b.json
